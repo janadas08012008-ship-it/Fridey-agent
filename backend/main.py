@@ -3,10 +3,12 @@ from typing import Literal
 import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field\nfrom task_api import router as tasks_router
+from pydantic import BaseModel, Field
+from task_api import router as tasks_router
 
 app = FastAPI(title="My AI Agent API", version="0.1.0")
-app.add_middleware(CORSMiddleware, allow_origins=os.getenv("CORS_ORIGINS","http://localhost:8000").split(","), allow_credentials=False, allow_methods=["GET","POST","DELETE"], allow_headers=["Content-Type","Authorization"])\napp.include_router(tasks_router)
+app.add_middleware(CORSMiddleware, allow_origins=os.getenv("CORS_ORIGINS","http://localhost:8000").split(","), allow_credentials=False, allow_methods=["GET","POST","DELETE"], allow_headers=["Content-Type","Authorization"])
+app.include_router(tasks_router)
 
 class Message(BaseModel):
     role: Literal["user","assistant"]
