@@ -1,12 +1,23 @@
 import os
+from pathlib import Path
 from typing import Literal
 import httpx
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from task_api import router as tasks_router
 
 app = FastAPI(title="My AI Agent API", version="0.1.0")
-app.add_middleware(CORSMiddleware, allow_origins=os.getenv("CORS_ORIGINS","http://localhost:8000").split(","), allow_credentials=False, allow_methods=["GET","POST"], allow_headers=["Content-Type","Authorization"])
+app.add_middleware(CORSMiddleware, allow_origins=os.getenv("CORS_ORIGINS","http://localhost:8000").split(","), allow_credentials=False, allow_methods=["GET","POST","DELETE"], allow_headers=["Content-Type","Authorization"])
+app.include_router(tasks_router)
+
+@app.get("/dashboard", include_in_schema=False)
+async def dashboard():
+    page = Path(__file__).resolve().parent.parent / "dashboard.html"
+    if not page.is_file():
+        raise HTTPException(404, "Dashboard file is missing from the deployment.")
+    return FileResponse(page, media_type="text/html")
 
 class Message(BaseModel):
     role: Literal["user","assistant"]
